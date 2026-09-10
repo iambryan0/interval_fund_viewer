@@ -1,7 +1,7 @@
 """Runs the EDGAR checks on a background thread and reports progress.
 
-One job at a time. If one fund fails I record it and keep going, same as the
-old CLI tracker did.
+One job at a time. If one fund fails I record it and keep going with the
+rest.
 """
 
 from __future__ import annotations

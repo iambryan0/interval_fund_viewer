@@ -64,7 +64,7 @@ def _filing_error_page(message: str) -> str:
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "IntervalsLite"
+    server_version = "IntervalFundViewer"
     db_path = store.DB_PATH
 
     # why the last redemptions.csv write failed, "" if it didn't. shows as a

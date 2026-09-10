@@ -500,8 +500,8 @@ def dated_csv_path(path: Path | str, today: Optional[date] = None) -> Path:
 
 
 def render_csv(conn: sqlite3.Connection) -> bytes:
-    """The fund list as csv bytes, alphabetical. Just the three columns the
-    team cares about, no review bookkeeping. CRLF line endings for Excel."""
+    """The fund list as csv bytes, alphabetical. Just the three columns worth
+    passing around, no review bookkeeping. CRLF line endings for Excel."""
     buf = io.StringIO(newline="")
     writer = _csv.DictWriter(buf, fieldnames=CSV_FIELDS, lineterminator="\r\n")
     writer.writeheader()
@@ -550,14 +550,14 @@ def write_csv(conn: sqlite3.Connection, path: Path | str = CSV_PATH,
 
 
 def import_legacy_csv(conn: sqlite3.Connection, path: Path | str) -> int:
-    """Seed the fund list from the old CLI tool's csv.
+    """Seed the fund list from redemptions-seed.csv.
 
     Needs a cik column, rows without one are skipped since cik is the only
     thing EDGAR can be checked by. redemptions.csv has no cik column, which
     is why the seed is a separate file.
 
-    Does nothing unless the file exists and the funds table is empty. The old
-    csv has no accession number so no watermark gets set - every imported
+    Does nothing unless the file exists and the funds table is empty. The seed
+    has no accession number so no watermark gets set - every imported
     fund shows as needing review after its first check, which is right, the
     watermark is only worth trusting once I've set it myself.
 

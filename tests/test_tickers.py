@@ -6,10 +6,8 @@ import json
 from pathlib import Path
 import sqlite3
 import tempfile
-import unittest
 from unittest.mock import patch
 
-import pages
 import sec
 import store
 from tests.test_server import ServerTestCase
