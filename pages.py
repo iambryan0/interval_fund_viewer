@@ -182,8 +182,7 @@ def _fund_row(fund: dict) -> str:
     cells = []
 
     name = esc(fund["fund_name"] or fund["cik"])
-    if status == "needs_review":
-        name = f'<a href="/fund/{esc(fund["cik"])}">{name}</a>'
+    name = f'<a href="/fund/{esc(fund["cik"])}">{name}</a>'
     if not fund["active"]:
         name += ' <span class="tag">inactive</span>'
     cells.append(
@@ -191,9 +190,9 @@ def _fund_row(fund: dict) -> str:
         f'<div><span class="fund-title">{name}</span>'
         f'<span class="fund-cik mono">CIK {esc(fund["cik"])}</span></div></div></td>'
     )
-    cells.append(f'<td class="ticker-cell"><span class="mono" data-ticker-value>{esc(fund["ticker"] or "—")}</span> '
+    cells.append(f'<td class="ticker-cell"><div class="ticker-content"><span class="mono" data-ticker-value>{esc(fund["ticker"] or "—")}</span> '
                  f'<a class="ticker-toggle" data-ticker-open href="/fund/{esc(fund["cik"])}/tickers" '
-                 f'aria-label="Edit tickers for {esc(fund["fund_name"] or fund["cik"])}" aria-haspopup="dialog">›</a></td>')
+                 f'aria-label="Edit tickers for {esc(fund["fund_name"] or fund["cik"])}" aria-haspopup="dialog">›</a></div></td>')
 
     detail = ""
     if status == "error":
@@ -203,23 +202,26 @@ def _fund_row(fund: dict) -> str:
                      f'{fund["latest_filing_date"] or ""}').strip()
     elif status == "up_to_date" and fund["review_status"]:
         detail = esc(REVIEW_LABELS.get(fund["review_status"], ""))
-    check_warning = ""
-    if status == "needs_review" and fund["check_error"]:
-        check_warning = (
-            '<br><span class="tag err">check failed</span> '
-            f'<span class="detail">{esc(fund["check_error"])}</span>'
-        )
+    short_labels = {
+        "unchecked": "Unchecked", "error": "Failed", "no_filings": "No filings",
+        "needs_review": "Review", "up_to_date": "Reviewed",
+    }
     tag_class = esc(f"tag {_STATUS_TAG.get(status, '')}".strip())
-    cells.append(
-        f'<td><span class="{tag_class}">'
-        f'{esc(STATUS_LABELS.get(status, status))}</span> '
-        f'<span class="detail">{detail}</span>{check_warning}</td>'
-    )
+    description = esc(STATUS_LABELS.get(status, status))
+    if detail:
+        description += f": {detail}"
+    badge = (f'<span class="{tag_class}" title="{description}" aria-label="{description}">'
+             f'{esc(short_labels.get(status, status))}</span>')
+    if status == "needs_review" and fund["check_error"]:
+        badge += (f'<span class="tag err" title="{esc(fund["check_error"])}" '
+                  f'aria-label="check failed: {esc(fund["check_error"])}">check failed</span>')
+    status_cell = f'<td class="status-cell">{badge}</td>'
 
     date_cell = esc(fund["next_redemption_date"] or "—")
     if fund["date_passed"]:
         date_cell += ' <span class="tag passed">passed</span>'
-    cells.append(f'<td class="mono">{date_cell}</td>')
+    cells.append(f'<td class="mono date-cell">{date_cell}</td>')
+    cells.append(status_cell)
 
     cik = esc(fund["cik"])
     toggle = "Disable" if fund["active"] else "Enable"
@@ -387,8 +389,8 @@ def fund_list_page(funds: list[dict], job: dict, message: str = "",
     if funds:
         rows = "".join(_fund_row(f) for f in funds)
         table = f"""<div class="table-scroll"><table>
-<thead><tr><th>Fund</th><th>Ticker</th><th>Status</th>
-<th>Next redemption</th><th><span class="sr-only">Actions</span></th></tr></thead>
+<thead><tr><th>Fund</th><th>Tickers</th><th>Next redemption</th>
+<th>Status</th><th><span class="sr-only">Actions</span></th></tr></thead>
 <tbody>{rows}</tbody></table></div>
 <div class="table-footer">
   <span id="row-count">{esc(len(funds))} fund{'s' if len(funds) != 1 else ''}</span>
