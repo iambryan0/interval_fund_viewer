@@ -19,7 +19,8 @@ python app.py
 ```
 
 On Windows, you can also double-click `run.bat`. The app opens at
-<http://127.0.0.1:8765/> (or the next available port).
+<http://127.0.0.1:8765/> (or the next available port). Starting it again while
+it is already running reopens the running copy instead of starting a second one.
 
 Open **Settings**, enter a SEC contact string such as
 `Your Name you@example.com`, and click **Test connection**.

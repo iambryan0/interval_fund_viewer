@@ -336,6 +336,14 @@ class CheckRouteTest(ServerTestCase):
         self.assertIn("running", payload)
         self.assertIn("errors", payload)
 
+    def test_health_endpoint_identifies_the_app_and_its_database(self):
+        status, body, resp = self.get("/api/health")
+        self.assertEqual(status, 200)
+        self.assertIn("application/json", resp.headers["Content-Type"])
+        payload = json.loads(body)
+        self.assertEqual(payload["app"], server.APP_ID)
+        self.assertEqual(payload["db"], str(self.db.resolve()))
+
     def test_checking_an_unknown_fund_is_404_and_starts_no_job(self):
         status, _, _ = self.post("/check/9999999", {})
         self.assertEqual(status, 404)

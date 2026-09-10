@@ -9,10 +9,12 @@ library only — nothing to install.
 
 from __future__ import annotations
 
+import json
 import os
 import socket
 import sys
 import threading
+import urllib.request
 import webbrowser
 from pathlib import Path
 
@@ -43,6 +45,31 @@ def pick_port(preferred: int, attempts: int = 10) -> int:
     raise OSError(
         f"No free port between {preferred} and {preferred + attempts - 1}."
     ) from last_error
+
+
+def find_running(preferred: int, db_path, attempts: int = 10,
+                 timeout: float = 1.0) -> int | None:
+    """Port of an instance already serving `db_path`, or None.
+
+    Clicking the shortcut twice used to start a second server on the next
+    port, with its own check job and progress state over the same database.
+    Every port pick_port could have settled on is asked /api/health; only a
+    reply naming this app and this database counts, so a foreign listener on
+    the preferred port or a copy run from another folder is left alone.
+    """
+    wanted = str(Path(db_path).resolve())
+    for offset in range(attempts):
+        port = preferred + offset
+        url = f"http://127.0.0.1:{port}/api/health"
+        try:
+            with urllib.request.urlopen(url, timeout=timeout) as resp:
+                payload = json.loads(resp.read().decode("utf-8"))
+        except Exception:  # noqa: BLE001 - refused, timed out, not json: not us
+            continue
+        if (isinstance(payload, dict) and payload.get("app") == server.APP_ID
+                and payload.get("db") == wanted):
+            return port
+    return None
 
 
 def bootstrap(db_path, legacy_csv=None, csv_path=None) -> None:
@@ -85,6 +112,14 @@ def main(argv: list[str] | None = None) -> int:
     finally:
         conn.close()
     preferred_port = int(preferred) if preferred.isdigit() else DEFAULT_PORT
+
+    running = find_running(preferred_port, db_path)
+    if running is not None:
+        url = f"http://127.0.0.1:{running}/"
+        print(f"Interval fund review is already running at {url}")
+        print("Opening it in the browser. Close this window.")
+        webbrowser.open(url)
+        return 0
 
     try:
         port = pick_port(preferred_port)

@@ -1,7 +1,11 @@
+import contextlib
+import io
 import socket
 import tempfile
+import threading
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 import app
 import server
@@ -52,6 +56,108 @@ class PickPortTest(unittest.TestCase):
             socket.socket = real_socket
 
         self.assertNotIn((socket.SOL_SOCKET, socket.SO_REUSEADDR), options)
+
+
+class FindRunningTest(unittest.TestCase):
+    """Second launch finds the copy already serving this database."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.db = Path(self.tmp.name) / "funds.db"
+        conn = store.connect(self.db)
+        store.init_db(conn)
+        conn.close()
+        self.httpd = server.make_server(0, self.db)
+        self.port = self.httpd.server_address[1]
+        self.thread = threading.Thread(target=self.httpd.serve_forever, daemon=True)
+        self.thread.start()
+
+    def tearDown(self):
+        self.httpd.shutdown()
+        self.httpd.server_close()
+        self.thread.join(timeout=5)
+        self.tmp.cleanup()
+
+    def test_finds_the_instance_on_the_preferred_port(self):
+        self.assertEqual(app.find_running(self.port, self.db), self.port)
+
+    def test_finds_the_instance_further_up_the_port_window(self):
+        # the first launch may itself have been bumped by a foreign listener
+        self.assertEqual(app.find_running(self.port - 3, self.db, attempts=10),
+                         self.port)
+
+    def test_none_when_nothing_is_listening(self):
+        with socket.socket() as probe:
+            probe.bind(("127.0.0.1", 0))
+            free = probe.getsockname()[1]
+        self.assertIsNone(app.find_running(free, self.db, attempts=1))
+
+    def test_none_when_the_port_belongs_to_something_else(self):
+        with socket.socket() as other:
+            other.bind(("127.0.0.1", 0))
+            other.listen(1)
+            port = other.getsockname()[1]
+
+            def answer():
+                conn, _ = other.accept()
+                conn.recv(1024)
+                conn.sendall(b"HTTP/1.0 200 OK\r\nContent-Type: text/plain\r\n\r\nnope")
+                conn.close()
+
+            threading.Thread(target=answer, daemon=True).start()
+            self.assertIsNone(app.find_running(port, self.db, attempts=1))
+
+    def test_none_when_the_instance_serves_a_different_database(self):
+        other_db = Path(self.tmp.name) / "other.db"
+        self.assertIsNone(app.find_running(self.port, other_db, attempts=1))
+
+
+class MainReusesRunningInstanceTest(unittest.TestCase):
+    """Clicking the shortcut twice opens the running copy, not a second server."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.db = Path(self.tmp.name) / "funds.db"
+        self._db_path = store.DB_PATH
+        self._csv = store.CSV_PATH
+        self._seed = store.SEED_CSV_PATH
+        self._csv_error = server.Handler.csv_error
+        store.DB_PATH = self.db
+        store.CSV_PATH = Path(self.tmp.name) / "redemptions.csv"
+        store.SEED_CSV_PATH = Path(self.tmp.name) / "no-such-seed.csv"
+        server.Handler.csv_error = ""
+
+        self.httpd = server.make_server(0, self.db)
+        self.port = self.httpd.server_address[1]
+        self.thread = threading.Thread(target=self.httpd.serve_forever, daemon=True)
+        self.thread.start()
+        app.bootstrap(self.db)
+        conn = store.connect(self.db)
+        store.set_setting(conn, "port", str(self.port))
+        conn.close()
+
+    def tearDown(self):
+        self.httpd.shutdown()
+        self.httpd.server_close()
+        self.thread.join(timeout=5)
+        store.DB_PATH = self._db_path
+        store.CSV_PATH = self._csv
+        store.SEED_CSV_PATH = self._seed
+        server.Handler.csv_error = self._csv_error
+        self.tmp.cleanup()
+
+    def test_main_opens_the_browser_at_the_running_instance_and_exits(self):
+        opened = []
+        started = []
+        out = io.StringIO()
+        with patch.object(app.webbrowser, "open", opened.append), \
+                patch.object(server, "run", lambda *a: started.append(a)), \
+                contextlib.redirect_stdout(out):
+            code = app.main([])
+        self.assertEqual(code, 0)
+        self.assertEqual(opened, [f"http://127.0.0.1:{self.port}/"])
+        self.assertEqual(started, [])
+        self.assertIn("already running", out.getvalue().lower())
 
 
 class BootstrapTest(unittest.TestCase):

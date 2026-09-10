@@ -29,6 +29,10 @@ CONTENT_TYPES = {
 
 SETUP_BANNER = pages.SETUP_BANNER
 
+# what /api/health answers with, so a second launch can tell this app apart
+# from whatever else might be sitting on the port
+APP_ID = "interval-fund-viewer"
+
 # form bodies are read into memory in one go. the biggest real one is a
 # review note, a megabyte is way past that and way short of anything harmful.
 MAX_FORM_BYTES = 1_000_000
@@ -80,6 +84,7 @@ class Handler(BaseHTTPRequestHandler):
         ("POST", re.compile(r"^/check$"), "action_check_all"),
         ("POST", re.compile(r"^/check/(?P<cik>\d+)$"), "action_check_one"),
         ("GET", re.compile(r"^/api/progress$"), "api_progress"),
+        ("GET", re.compile(r"^/api/health$"), "api_health"),
         ("GET", re.compile(r"^/static/(?P<name>[A-Za-z0-9._-]+)$"), "serve_static"),
         ("GET", re.compile(r"^/fund/(?P<cik>\d+)$"), "page_review"),
         ("GET", re.compile(r"^/fund/(?P<cik>\d+)/tickers$"), "page_tickers"),
@@ -430,6 +435,12 @@ class Handler(BaseHTTPRequestHandler):
 
     def api_progress(self):
         self._json(checker.progress())
+
+    def api_health(self):
+        """Who I am and which database I serve. app.find_running reads this
+        on a second launch to reuse this instance instead of starting another
+        one beside it."""
+        self._json({"app": APP_ID, "db": str(Path(self.db_path).resolve())})
 
     def page_settings(self, message: str = "", ok=None):
         conn = self._conn()
