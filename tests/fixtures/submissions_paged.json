@@ -1,0 +1,18 @@
+{
+  "cik": "1234567",
+  "name": "Paged Fund",
+  "tickers": [],
+  "filings": {
+    "recent": {
+      "form": ["N-CSR"],
+      "accessionNumber": ["0001234567-26-000002"],
+      "filingDate": ["2026-06-01"],
+      "primaryDocument": ["ncsr.htm"],
+      "primaryDocDescription": ["ANNUAL REPORT"]
+    },
+    "files": [
+      {"name": "CIK0001234567-submissions-001.json", "filingCount": 2,
+       "filingFrom": "2019-01-01", "filingTo": "2024-12-31"}
+    ]
+  }
+}

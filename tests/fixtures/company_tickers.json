@@ -1,0 +1,4 @@
+{
+  "0": {"cik_str": 1234567, "ticker": "ACME", "title": "Acme Interval Fund"},
+  "1": {"cik_str": 7654321, "ticker": "BETA", "title": "Beta Credit Fund"}
+}

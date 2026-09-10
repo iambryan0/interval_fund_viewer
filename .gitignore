@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+funds.db
+funds.db-journal
+funds*.db
+funds*.db-*
+cache/
+.env
+.env.*
+!.env.example
+redemptions.csv
+redemptions*.csv.tmp
+redemptions-*.csv
+.superpowers/
+docs/

@@ -1,0 +1,19 @@
+{
+  "cik": "1234567",
+  "name": "Acme Interval Fund",
+  "tickers": ["ACME"],
+  "filings": {
+    "recent": {
+      "form": ["N-CSR", "N-23C3A", "SC TO-I", "N-23C3A", "8-K"],
+      "accessionNumber": [
+        "0001234567-26-000001",
+        "0001234567-26-000123",
+        "0001234567-25-000410",
+        "0001234567-26-000077",
+        "0001234567-26-000009"
+      ],
+      "filingDate": ["2026-08-20", "2026-08-14", "2025-11-03", "2026-05-12", "2026-01-05"],
+      "primaryDocument": ["ncsr.htm", "notice.htm", "sctoi.htm", "notice2.htm", "8k.htm"]
+    }
+  }
+}

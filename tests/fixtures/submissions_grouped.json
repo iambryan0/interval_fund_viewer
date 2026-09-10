@@ -1,0 +1,14 @@
+{
+  "cik": "1783964",
+  "name": "Accordant ODCE Index Fund",
+  "tickers": ["ODCAX", "ODCEX", "ODCYX"],
+  "filings": {
+    "recent": {
+      "form":               ["N-23C3A", "N-PORT", "N-CSR", "N-PORT", "N-2/A", "497", "N-23C3A", "N-PORT", "N-CEN", "N-23C3A", "N-CSRS", "DEF 14A", "N-23C3A", "8-K"],
+      "accessionNumber":    ["0001783964-26-000031", "0001783964-26-000029", "0001783964-26-000025", "0001783964-26-000021", "0001783964-26-000017", "0001783964-26-000018", "0001783964-26-000014", "0001783964-26-000011", "0001783964-26-000008", "0001783964-26-000004", "0001783964-25-000090", "0001783964-25-000071", "0001783964-25-000066", "0001783964-25-000050"],
+      "filingDate":         ["2026-08-04", "2026-07-29", "2026-06-27", "2026-05-28", "2026-05-15", "2026-05-15", "2026-05-05", "2026-04-29", "2026-03-14", "2026-02-03", "2025-12-30", "2025-09-12", "2025-11-04", "2025-08-01"],
+      "primaryDocument":    ["notice_q3.htm", "nport.xml", "ncsr.htm", "nport.xml", "n2a.htm", "supp.htm", "notice_q2.htm", "nport.xml", "ncen.xml", "notice_q1.htm", "ncsrs.htm", "proxy.htm", "notice_q4.htm", "8k.htm"],
+      "primaryDocDescription": ["NOTICE", "", "ANNUAL REPORT", "", "PROSPECTUS", "SUPPLEMENT", "NOTICE", "", "", "NOTICE", "SEMI-ANNUAL", "PROXY", "NOTICE", ""]
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "directory": {
+    "name": "/Archives/edgar/data/1783964/000178396426000017",
+    "parent-dir": "/Archives/edgar/data/1783964",
+    "item": [
+      {"last-modified": "2026-05-15 16:02:11", "name": "0001783964-26-000017-index-headers.html", "type": "text.gif", "size": ""},
+      {"last-modified": "2026-05-15 16:02:11", "name": "0001783964-26-000017-index.html", "type": "text.gif", "size": ""},
+      {"last-modified": "2026-05-15 16:02:11", "name": "0001783964-26-000017.txt", "type": "text.gif", "size": "2456123"},
+      {"last-modified": "2026-05-15 16:02:11", "name": "ex99a.htm", "type": "text.gif", "size": "40231"},
+      {"last-modified": "2026-05-15 16:02:11", "name": "feeschedule.pdf", "type": "text.gif", "size": "88120"},
+      {"last-modified": "2026-05-15 16:02:11", "name": "logo.jpg", "type": "image2.gif", "size": "5012"},
+      {"last-modified": "2026-05-15 16:02:11", "name": "n2a.htm", "type": "text.gif", "size": "1203311"},
+      {"last-modified": "2026-05-15 16:02:11", "name": "index.json", "type": "text.gif", "size": ""}
+    ]
+  }
+}
